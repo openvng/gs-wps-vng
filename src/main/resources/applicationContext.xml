@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+  <bean id="tps" class="org.geoserver.wps.interpolation.TPS" />
+  <bean id="idw" class="org.geoserver.wps.interpolation.IDW" />
+  <bean id="myContour" class="org.geoserver.wps.interpolation.MyContour" />
+</beans>
