@@ -5,4 +5,5 @@
   <bean id="tps" class="org.geoserver.wps.interpolation.TPS" />
   <bean id="idw" class="org.geoserver.wps.interpolation.IDW" />
   <bean id="myContour" class="org.geoserver.wps.interpolation.MyContour" />
+  <bean id="demProfiler" class="org.geoserver.wps.dem.DEMProfiler" />
 </beans>

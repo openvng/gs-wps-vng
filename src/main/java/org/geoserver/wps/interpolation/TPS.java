@@ -41,19 +41,14 @@ public class TPS implements GeoServerProcess {
   
   @DescribeResult(name = "result", description = "Output raster")
   public GridCoverage2D execute(
-    @DescribeParameter(name = "data", description = "Input features") SimpleFeatureCollection inputFeatures, 
-    @DescribeParameter(name = "valueAttr", description = "Name of attribute containing the data value to be interpolated") String valueAttr, 
-    @DescribeParameter(name = "cellSize", description = "The cell size for the output gridcoverage.", min = 0, max = 1, defaultValue = "0.0") Double cellSize,
-    // output image parameters
-    @DescribeParameter(name = "outputBBOX", description = "Bounding box for output") ReferencedEnvelope outputEnv, 
-    @DescribeParameter(name = "outputWidth", description = "Width of the output raster in pixels", min = 0, max = 1) Integer outputWidth, 
-    @DescribeParameter(name = "outputHeight", description = "Height of the output raster in pixels", min = 0, max = 1) Integer outputHeight,
+      @DescribeParameter(name = "data", description = "Input features") SimpleFeatureCollection inputFeatures, 
+      @DescribeParameter(name = "valueAttr", description = "Name of attribute containing the data value to be interpolated") String valueAttr, 
+      @DescribeParameter(name = "cellSize", description = "The cell size for the output gridcoverage.", min = 0, max = 1, defaultValue = "0.0") Double cellSize,
+      @DescribeParameter(name = "outputBBOX", description = "Bounding box for output") ReferencedEnvelope outputEnv, 
+      @DescribeParameter(name = "outputWidth", description = "Width of the output raster in pixels", min = 0, max = 1) Integer outputWidth, 
+      @DescribeParameter(name = "outputHeight", description = "Height of the output raster in pixels", min = 0, max = 1) Integer outputHeight,
+      ProgressListener monitor) throws ProcessException {
     
-    ProgressListener monitor) throws ProcessException {
-    
-    /**
-     * --------------------------------------------- Check that process arguments are valid ---------------------------------------------
-     */
     if (valueAttr == null || valueAttr.length() <= 0) {
       throw new IllegalArgumentException("Value attribute must be specified");
     }
@@ -70,9 +65,9 @@ public class TPS implements GeoServerProcess {
     CoordinateReferenceSystem dstCRS = outputEnv.getCoordinateReferenceSystem();
     MathTransform trans = null;
     try {
-        trans = CRS.findMathTransform(srcCRS, dstCRS);
+      trans = CRS.findMathTransform(srcCRS, dstCRS);
     } catch (FactoryException e) {
-        throw new ProcessException(e);
+      throw new ProcessException(e);
     }
     
     try {
@@ -111,7 +106,7 @@ public class TPS implements GeoServerProcess {
       SimpleFeature srcFeature = iterator.next();
       SimpleFeature dstFeature = SimpleFeatureBuilder.copy(srcFeature);
       dstFeature.setAttributes(srcFeature.getAttributes());
-      Geometry srcGeometry = (Geometry)srcFeature.getDefaultGeometry();
+      Geometry srcGeometry = (Geometry) srcFeature.getDefaultGeometry();
       Geometry dstGeometry = JTS.transform(srcGeometry, trans);
       dstFeature.setDefaultGeometry(dstGeometry);
       features.add(dstFeature);
@@ -143,23 +138,17 @@ public class TPS implements GeoServerProcess {
    * @return The transformed query
    */
   public Query invertQuery(
-    @DescribeParameter(name = "valueAttr", description = "Name of attribute containing the data value to be interpolated") String valueAttr, 
-    @DescribeParameter(name = "cellSize", description = "The cell size for the output gridcoverage.", min = 0, max = 1, defaultValue = "0.0") Double cellSize,
-    // output image parameters
-    @DescribeParameter(name = "outputBBOX", description = "Bounding box for output") ReferencedEnvelope outputEnv, 
-    @DescribeParameter(name = "outputWidth", description = "Width of the output raster in pixels", min = 0, max = 1) Integer outputWidth, 
-    @DescribeParameter(name = "outputHeight", description = "Height of the output raster in pixels", min = 0, max = 1) Integer outputHeight,
-    Query targetQuery, GridGeometry targetGridGeometry) throws ProcessException {
-    
-    // default is no expansion
-    //double distance = 1000;
-    
-    //targetQuery.setFilter(expandBBox(targetQuery.getFilter(), distance));
+      @DescribeParameter(name = "valueAttr", description = "Name of attribute containing the data value to be interpolated") String valueAttr, 
+      @DescribeParameter(name = "cellSize", description = "The cell size for the output gridcoverage.", min = 0, max = 1, defaultValue = "0.0") Double cellSize,
+      @DescribeParameter(name = "outputBBOX", description = "Bounding box for output") ReferencedEnvelope outputEnv, 
+      @DescribeParameter(name = "outputWidth", description = "Width of the output raster in pixels", min = 0, max = 1) Integer outputWidth, 
+      @DescribeParameter(name = "outputHeight", description = "Height of the output raster in pixels", min = 0, max = 1) Integer outputHeight, 
+      Query targetQuery, 
+      GridGeometry targetGridGeometry) throws ProcessException {
     
     try {
-      targetQuery.setFilter(CQL.toFilter(valueAttr+" > -9999.0"));
+      targetQuery.setFilter(CQL.toFilter(valueAttr + " > -9999.0"));
     } catch (CQLException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     

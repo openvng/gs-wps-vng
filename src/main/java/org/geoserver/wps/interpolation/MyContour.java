@@ -42,13 +42,12 @@ import com.vividsolutions.jts.geom.util.AffineTransformation;
 @DescribeProcess(title = "myContour", description = "my contouring")
 public class MyContour implements GeoServerProcess {
   
-  private static final InternationalString NO_DATA = Vocabulary
-      .formatInternational(VocabularyKeys.NODATA);
-
+  private static final InternationalString NO_DATA = Vocabulary.formatInternational(VocabularyKeys.NODATA);
+  
   static {
     Registry.registerRIF(JAI.getDefaultInstance(), new ContourDescriptor(), new ContourRIF(), Registry.JAI_TOOLS_PRODUCT);
   }
-
+  
   /**
    * Perform the contouring on the input {@linkplain GridCoverage2D} and returns the results as a feature collection. You can control which contours are generated either by providing a list of values via the {@code levels} argument, or by specifying the interval between contour values via the {@code interval} argument. In the interval case, the resulting contour values will be integer multiples of the specified interval. If both {@code levels} and {@code interval} are supplied the {@code interval} argument is ignored.
    * 
@@ -77,25 +76,25 @@ public class MyContour implements GeoServerProcess {
    * 
    * @throws ProcessException
    */
-  public static SimpleFeatureCollection process(GridCoverage2D gc2d, Integer band, double[] levels, Double interval, Boolean simplify, Boolean smooth, Geometry roi, ProgressListener progressListener) throws ProcessException {
+  public static SimpleFeatureCollection process(
+      GridCoverage2D gc2d, Integer band, double[] levels, Double interval, 
+      Boolean simplify, Boolean smooth, 
+      Geometry roi, ProgressListener progressListener) throws ProcessException {
     ContourProcess process = new ContourProcess();
     return process.execute(gc2d, band, levels, interval, simplify, smooth, roi, progressListener);
   }
   
   @DescribeResult(name = "result", description = "Contour line features.  Contour level is in value attribute.")
   public SimpleFeatureCollection execute(
-    @DescribeParameter(name = "data", description = "Input raster") GridCoverage2D gc2d,
-    @DescribeParameter(name = "band", description = "Name of band to use for values to be contoured", min = 0, max = 1) Integer band,
-    @DescribeParameter(name = "levels", description = "Values of levels at which to generate contours") double[] levels,
-    @DescribeParameter(name = "interval", description = "Interval between contour values (ignored if levels parameter is supplied)", min = 0, minValue = 0) Double interval,
-    @DescribeParameter(name = "simplify", description = "Indicates whether contour lines are simplified", min = 0) Boolean simplify,
-    @DescribeParameter(name = "smooth", description = "Indicates whether contour lines are smoothed using Bezier smoothing", min = 0) Boolean smooth,
-    @DescribeParameter(name = "roi", description = "Geometry delineating the region of interest (in raster coordinate system)", min = 0) Geometry roi,
-    ProgressListener progressListener) throws ProcessException {
-
-    //
-    // initial checks
-    //
+      @DescribeParameter(name = "data", description = "Input raster") GridCoverage2D gc2d, 
+      @DescribeParameter(name = "band", description = "Name of band to use for values to be contoured", min = 0, max = 1) Integer band, 
+      @DescribeParameter(name = "levels", description = "Values of levels at which to generate contours") double[] levels, 
+      @DescribeParameter(name = "interval", description = "Interval between contour values (ignored if levels parameter is supplied)", min = 0, minValue = 0) Double interval, 
+      @DescribeParameter(name = "simplify", description = "Indicates whether contour lines are simplified", min = 0) Boolean simplify, 
+      @DescribeParameter(name = "smooth", description = "Indicates whether contour lines are smoothed using Bezier smoothing", min = 0) Boolean smooth, 
+      @DescribeParameter(name = "roi", description = "Geometry delineating the region of interest (in raster coordinate system)", min = 0) Geometry roi, 
+      ProgressListener progressListener) throws ProcessException {
+    
     if (gc2d == null) {
       throw new ProcessException("Invalid input, source grid coverage should be not null");
     }
@@ -187,7 +186,10 @@ public class MyContour implements GeoServerProcess {
     final SimpleFeatureBuilder builder = new SimpleFeatureBuilder(schema);
     int i = 0;
     final ListFeatureCollection featureCollection = new ListFeatureCollection(schema);
-    final AffineTransformation jtsTransformation = new AffineTransformation(mt2D.getScaleX(), mt2D.getShearX(), mt2D.getTranslateX(), mt2D.getShearY(), mt2D.getScaleY(), mt2D.getTranslateY());
+    final AffineTransformation jtsTransformation = new AffineTransformation(
+        mt2D.getScaleX(), mt2D.getShearX(), 
+        mt2D.getTranslateX(), mt2D.getShearY(), 
+        mt2D.getScaleY(), mt2D.getTranslateY());
     for (LineString line : prop) {
       
       if (!line.isValid()) {
@@ -206,9 +208,7 @@ public class MyContour implements GeoServerProcess {
       featureCollection.add(builder.buildFeature(String.valueOf(i++)));
       
     }
-    
-    // return value
-    
+
     return featureCollection;
   }
   

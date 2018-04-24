@@ -42,23 +42,18 @@ public class IDW implements GeoServerProcess {
   
   @DescribeResult(name = "result", description = "Output raster")
   public GridCoverage2D execute(
-    @DescribeParameter(name = "data", description = "Input features") SimpleFeatureCollection inputFeatures, 
-    @DescribeParameter(name = "valueAttr", description = "Name of attribute containing the data value to be interpolated") String valueAttr, 
-    @DescribeParameter(name = "power", description = "The exponent(default 2.0) of distance.", min = 0, max = 1, defaultValue = "2.0") Double power, 
-    @DescribeParameter(name = "radiusType", description = "The search radius type", min = 0, max = 1, defaultValue = "Variable") RadiusType radiusType, 
-    @DescribeParameter(name = "numberOfPoints", description = "The numberOfPoints is an integer value specifying the number of nearest input sample points to be used to perform the interpolation.", min = 0, max = 1, defaultValue = "12") Integer numberOfPoints, 
-    @DescribeParameter(name = "distance", description = "The distance specifies the distance, in map units, by which to limit the search for the nearest input sample points.", min = 0, max = 1, defaultValue = "0.0") Double distance, 
-    @DescribeParameter(name = "cellSize", description = "The cell size for the output gridcoverage.", min = 0, max = 1, defaultValue = "0.0") Double cellSize,
-    // output image parameters
-    @DescribeParameter(name = "outputBBOX", description = "Bounding box for output") ReferencedEnvelope outputEnv, 
-    @DescribeParameter(name = "outputWidth", description = "Width of the output raster in pixels", min = 0, max = 1) Integer outputWidth, 
-    @DescribeParameter(name = "outputHeight", description = "Height of the output raster in pixels", min = 0, max = 1) Integer outputHeight,
+      @DescribeParameter(name = "data", description = "Input features") SimpleFeatureCollection inputFeatures, 
+      @DescribeParameter(name = "valueAttr", description = "Name of attribute containing the data value to be interpolated") String valueAttr, 
+      @DescribeParameter(name = "power", description = "The exponent(default 2.0) of distance.", min = 0, max = 1, defaultValue = "2.0") Double power, 
+      @DescribeParameter(name = "radiusType", description = "The search radius type", min = 0, max = 1, defaultValue = "Variable") RadiusType radiusType, 
+      @DescribeParameter(name = "numberOfPoints", description = "The numberOfPoints is an integer value specifying the number of nearest input sample points to be used to perform the interpolation.", min = 0, max = 1, defaultValue = "12") Integer numberOfPoints, 
+      @DescribeParameter(name = "distance", description = "The distance specifies the distance, in map units, by which to limit the search for the nearest input sample points.", min = 0, max = 1, defaultValue = "0.0") Double distance, 
+      @DescribeParameter(name = "cellSize", description = "The cell size for the output gridcoverage.", min = 0, max = 1, defaultValue = "0.0") Double cellSize,
+      @DescribeParameter(name = "outputBBOX", description = "Bounding box for output") ReferencedEnvelope outputEnv, 
+      @DescribeParameter(name = "outputWidth", description = "Width of the output raster in pixels", min = 0, max = 1) Integer outputWidth, 
+      @DescribeParameter(name = "outputHeight", description = "Height of the output raster in pixels", min = 0, max = 1) Integer outputHeight,
+      ProgressListener monitor) throws ProcessException {
     
-    ProgressListener monitor) throws ProcessException {
-    
-    /**
-     * --------------------------------------------- Check that process arguments are valid ---------------------------------------------
-     */
     if (valueAttr == null || valueAttr.length() <= 0) {
       throw new IllegalArgumentException("Value attribute must be specified");
     }
@@ -70,9 +65,9 @@ public class IDW implements GeoServerProcess {
     CoordinateReferenceSystem dstCRS = outputEnv.getCoordinateReferenceSystem();
     MathTransform trans = null;
     try {
-        trans = CRS.findMathTransform(srcCRS, dstCRS);
+      trans = CRS.findMathTransform(srcCRS, dstCRS);
     } catch (FactoryException e) {
-        throw new ProcessException(e);
+      throw new ProcessException(e);
     }
     
     try {
@@ -81,11 +76,6 @@ public class IDW implements GeoServerProcess {
       throw new ProcessException(e);
     }
     
-    /*
-    CoordinateReferenceSystem trsCRS = inputFeatures.getSchema().getCoordinateReferenceSystem();
-    System.out.println("----=============================================");
-    System.out.println(trsCRS);
-    */
     if (cellSize == 0.0) {
       cellSize = Math.min(outputEnv.getWidth(), outputEnv.getHeight()) / 250.0;
     }
@@ -94,31 +84,27 @@ public class IDW implements GeoServerProcess {
     
     RasterRadius rasterRadius = new RasterRadius();
     if (radiusType == RadiusType.Variable) {
-        numberOfPoints = numberOfPoints == 0 ? 12 : numberOfPoints;
-        if (distance > 0)
-            rasterRadius.setVariable(numberOfPoints, distance);
-        else
-            rasterRadius.setVariable(numberOfPoints);
+      numberOfPoints = numberOfPoints == 0 ? 12 : numberOfPoints;
+      if (distance > 0) rasterRadius.setVariable(numberOfPoints, distance);
+      else rasterRadius.setVariable(numberOfPoints);
     } else {
-        // The default radius is five times the cell size of the output raster.
-        distance = distance == 0 ? cellSize * 5 : distance;
-        if (numberOfPoints > 0)
-            rasterRadius.setFixed(distance, numberOfPoints);
-        else
-            rasterRadius.setFixed(distance);
+      // The default radius is five times the cell size of the output raster.
+      distance = distance == 0 ? cellSize * 5 : distance;
+      if (numberOfPoints > 0) rasterRadius.setFixed(distance, numberOfPoints);
+      else rasterRadius.setFixed(distance);
     }
     
     GridCoverage2D resultGc = null;
     RasterInterpolationIDWOperation process = new RasterInterpolationIDWOperation();
     process.getRasterEnvironment().setExtent(outputEnv);
-
+    
     if (cellSize > 0) {
-        double origCellSize = process.getRasterEnvironment().getCellSize();
-        process.getRasterEnvironment().setCellSize(cellSize);
-        resultGc = process.execute(inputFeatures, valueAttr, power, rasterRadius);
-        process.getRasterEnvironment().setCellSize(origCellSize);
+      double origCellSize = process.getRasterEnvironment().getCellSize();
+      process.getRasterEnvironment().setCellSize(cellSize);
+      resultGc = process.execute(inputFeatures, valueAttr, power, rasterRadius);
+      process.getRasterEnvironment().setCellSize(origCellSize);
     } else {
-        resultGc = process.execute(inputFeatures, valueAttr, power, rasterRadius);
+      resultGc = process.execute(inputFeatures, valueAttr, power, rasterRadius);
     }
     
     return resultGc;
@@ -133,7 +119,7 @@ public class IDW implements GeoServerProcess {
       SimpleFeature srcFeature = iterator.next();
       SimpleFeature dstFeature = SimpleFeatureBuilder.copy(srcFeature);
       dstFeature.setAttributes(srcFeature.getAttributes());
-      Geometry srcGeometry = (Geometry)srcFeature.getDefaultGeometry();
+      Geometry srcGeometry = (Geometry) srcFeature.getDefaultGeometry();
       Geometry dstGeometry = JTS.transform(srcGeometry, trans);
       dstFeature.setDefaultGeometry(dstGeometry);
       features.add(dstFeature);
@@ -165,19 +151,17 @@ public class IDW implements GeoServerProcess {
    * @return The transformed query
    */
   public Query invertQuery(
-    @DescribeParameter(name = "valueAttr", description = "Name of attribute containing the data value to be interpolated") String valueAttr, 
-    Query targetQuery, GridGeometry targetGridGeometry) throws ProcessException {
+      @DescribeParameter(name = "valueAttr", description = "Name of attribute containing the data value to be interpolated") String valueAttr, 
+      Query targetQuery, GridGeometry targetGridGeometry) throws ProcessException {
     
     // default is no expansion
-    //double distance = 1000;
-    
-    //targetQuery.setFilter(expandBBox(targetQuery.getFilter(), distance));
+    // double distance = 1000;
+    // targetQuery.setFilter(expandBBox(targetQuery.getFilter(), distance));
     
     try {
-      targetQuery.setFilter(CQL.toFilter(valueAttr+" > -9999.0"));
-      //targetQuery.setFilter(expandBBox(targetQuery.getFilter(), distance));
+      targetQuery.setFilter(CQL.toFilter(valueAttr + " > -9999.0"));
+      // targetQuery.setFilter(expandBBox(targetQuery.getFilter(), distance));
     } catch (CQLException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     

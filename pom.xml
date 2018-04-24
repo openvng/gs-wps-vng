@@ -2,22 +2,21 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.geoserver</groupId>
-  <artifactId>interpolation</artifactId>
-  <version>2.8.4</version>
+  <artifactId>gs-wps-vng</artifactId>
+  <version>2.11.5.1</version>
   <packaging>jar</packaging>
-  <name>interpolation</name>
+  <name>gs-wps-vng</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <gt.version>14.4</gt.version>
-    <gs.version>2.8.4</gs.version>
-    <imageio.ext.version>1.1.13</imageio.ext.version>
-    <jaiext.version>1.0.9</jaiext.version>
+    <gt.version>14.5</gt.version>
+    <gs.version>2.11.5</gs.version>
+    <imageio.ext.version>1.1.18</imageio.ext.version>
+    <jaiext.version>1.0.15</jaiext.version>
     <jt.version>1.4.0</jt.version>
   </properties>
 
   <dependencies>
-
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-api</artifactId>
@@ -410,8 +409,6 @@
       <scope>test</scope>
     </dependency>
 
-
-
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -461,16 +458,28 @@
   </build>
   <repositories>
     <repository>
-      <id>VNG-NEXUS</id>
-      <name>VNG-NEXUS</name>
-      <url>http://dev.vng.co.kr/nexus/content/groups/public/</url>
+      <id>geotools</id>
+      <name>geotools</name>
+      <url>http://download.osgeo.org/webdav/geotools/</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>boundless</id>
+      <name>boundless</name>
+      <url>http://repo.boundlessgeo.com/main/</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>geosolutions</id>
+      <name>geosolutions</name>
+      <url>http://maven.geo-solutions.it/</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
     </repository>
   </repositories>
-  <pluginRepositories>
-    <pluginRepository>
-      <id>VNG-NEXUS</id>
-      <name>VNG-NEXUS</name>
-      <url>http://dev.vng.co.kr/nexus/content/groups/public/</url>
-    </pluginRepository>
-  </pluginRepositories>
 </project>
