@@ -87,7 +87,8 @@ public class DEMProfiler implements GeoServerProcess {
     int id = 0;
     double distance = 0;
     for (Coordinate coord : coords) {
-      Point curPoint = profileLine.getFactory().createPoint(coord);
+      Coordinate coord2D = new Coordinate(coord.x, coord.y);
+      Point curPoint = profileLine.getFactory().createPoint(coord2D);
       
       String fid = featureType.getTypeName() + "." + (++id);
       SimpleFeature newFeature = builder.buildFeature(fid);
