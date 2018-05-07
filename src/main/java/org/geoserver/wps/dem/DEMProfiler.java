@@ -7,6 +7,7 @@ import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.geotools.geometry.jts.Geometries;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.process.ProcessException;
 import org.geotools.process.factory.DescribeParameter;
@@ -65,7 +66,21 @@ public class DEMProfiler implements GeoServerProcess {
     }
     
     RasterFunctionalSurface process = new RasterFunctionalSurface(inputCoverage);
-    Geometry profileLine = process.getProfile(userGeometry, interval);
+    
+    SimpleFeatureType featureType = FeatureTypes.getDefaultType("profile", Point.class, geometryCRS);
+    featureType = FeatureTypes.add(featureType, "distance", Double.class);
+    featureType = FeatureTypes.add(featureType, "elevation", Double.class);
+    ListFeatureCollection result = new ListFeatureCollection(featureType);
+    SimpleFeatureBuilder builder = new SimpleFeatureBuilder(featureType);
+    
+    Geometry profileLine = null;
+    if (Geometries.get(userGeometry) == Geometries.POINT) {
+      Coordinate coord = userGeometry.getCoordinate();
+      coord.z = process.getElevation(coord);
+      profileLine = userGeometry; 
+    } else {
+      profileLine = process.getProfile(userGeometry, interval);
+    }
     
     if (!CRS.equalsIgnoreMetadata(rasterCRS, geometryCRS)) {
       try {
@@ -75,13 +90,6 @@ public class DEMProfiler implements GeoServerProcess {
         throw new ProcessException(e);
       }
     }
-    
-    SimpleFeatureType featureType = FeatureTypes.getDefaultType("profile", Point.class, geometryCRS);
-    featureType = FeatureTypes.add(featureType, "distance", Double.class);
-    featureType = FeatureTypes.add(featureType, "elevation", Double.class);
-    
-    ListFeatureCollection result = new ListFeatureCollection(featureType);
-    SimpleFeatureBuilder builder = new SimpleFeatureBuilder(featureType);
     
     Coordinate[] coords = profileLine.getCoordinates();
     int id = 0;
